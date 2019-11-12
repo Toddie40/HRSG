@@ -1,0 +1,15 @@
+Work Type,Work [kW]
+LP Pump work,43.515433717979874
+IP Pump work,6.709278908797387
+HP Pump work,1042.6845502142419
+HP Turbine work,41924.95888149973
+IP Turbine work,22223.513959659278
+LP Turbine work,100874.23197481562
+LP Heat Input,150843.72028904367
+IP Heat Input,79882.14967913344
+HP Heat Input,171226.0381431764
+Mass Flow Rates
+mass flow 1,35
+mass flow 2,10
+mass flow 3,60
+mass flow to amine,5
