@@ -48,9 +48,9 @@ print("---HRSG and Steam Cycle Analysis---\n")
 #define a new steam cycle with the following conditions
 
 
-m1 = 25
-m2 = 35
-m3 = 40
+m1 = 20
+m2 = 30
+m3 = 50
 
 hp = 165
 ip = 8
@@ -115,33 +115,46 @@ for name, exchanger in HRSG.items():
     print("\tSteam Outlet temperature: "+str(exchanger.t['cold out']))
     print("\tHeat Duty: "+str(exchanger.Q))
 
-def PlotPinchgraph(array_of_exchangers):
+def PlotPinchgraph(array_of_exchangers, padding=5, title="pinch plot", difference_threshold=50):
     # create x axis
     array_of_exchangers = list(array_of_exchangers.items())
     no_of_exchangers = len(array_of_exchangers)
     x = np.zeros((no_of_exchangers,2)) #array to hold heat limits per exchanger
-
+    labels = []
     #populate array by iterating through exchngers and grabbing heat duties
 
     for i in range(0,no_of_exchangers):
         exchanger = array_of_exchangers[no_of_exchangers - 1 - i]
         data = exchanger[1]
         name = exchanger[0]
-
+        labels.append(name)
         if i > 0:
             x[i][0] = x[i-1][1]
-        x[i][1] = data.Q + x[i][0]
+        x[i][1] = (data.Q ) / 1000 + x[i][0] # Convert to MW
         cold_temps = [data.t['cold in'], data.t['cold out']]
+        hot_temps = [data.t['hot out'], data.t['hot in']]
+        diff_1 = np.round(hot_temps[0] - cold_temps[0])
+        diff_2 = np.round(hot_temps[1] - cold_temps[1])
+        if diff_1 < difference_threshold:  # only plot difference on graph if less that 50 K
+            plt.text(x[i][0], cold_temps[0] + padding, str(diff_1))
+        if diff_2 < difference_threshold:
+            plt.text(x[i][1], cold_temps[1] + padding, str(diff_2))
         plt.plot(x[i],cold_temps)
 
 
     # add flue gas temperature
-    x = [0,steamCycle.q_in]
+    x = [0,steamCycle.q_in / 1000] # convert to MW
     T_fg = [array_of_exchangers[no_of_exchangers-1][1].t['hot out'], array_of_exchangers[0][1].t['hot in']]
-    plt.plot(x,T_fg)
+
+    plt.plot(x,T_fg,linestyle="dashed", color='r')
+    labels.append("Fluegas Temperature")
+    plt.legend(labels)
+    plt.xlabel("Heat Consumption [MW]")
+    plt.ylabel("Temperature [K]")
+    plt.title(title)
     plt.show()
 
 
-PlotPinchgraph(HRSG)
+PlotPinchgraph(HRSG,title="Heat Consumption versus Temperature diagram for the HRSG", difference_threshold = 50)
 
 steamCycle.PlotResults()

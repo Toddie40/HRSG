@@ -1,0 +1,24 @@
+Work Type,Work [kW]
+LP Pump work,41.44327020759988
+IP Pump work,13.641132496723003
+HP Pump work,868.9037918452016
+HP Turbine work,35378.31938562904
+IP Turbine work,18740.174234791994
+LP Turbine work,95830.52037607484
+LP Superheater Heat Input,11050.225255944124
+LP Evaporator Heat Input,42666.66297556269
+LP Economiser Heat Input,54132.538937054036
+IP Superheater Heat Input,60521.407919971534
+IP Superheater 2 Heat Input,0.0
+IP Evaporator Heat Input,61418.538487319696
+IP Economiser Heat Input,3475.1900955014853
+HP Superheater Heat Input,45565.14067602727
+HP Evaporator Heat Input,44744.12095311796
+HP Economiser Heat Input,52379.10349016844
+Net Work,149025.02580194635
+Efficiency,0.3963927778972679
+Mass Flow Rates
+mass flow 1,20
+mass flow 2,30
+mass flow 3,50
+mass flow to amine,5
