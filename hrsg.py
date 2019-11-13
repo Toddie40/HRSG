@@ -47,17 +47,19 @@ print("---HRSG and Steam Cycle Analysis---\n")
 
 #define a new steam cycle with the following conditions
 
-
+# mass flows kg/s
 m1 = 20
 m2 = 30
 m3 = 50
+ma = 5  # mass of steam required for CCS
 
+# pressure levels bar
 hp = 165
 ip = 8
 lp = 4
 
 
-steamCycle = cycle.SteamCycle(hp,ip,lp,m1,m2,m3,5,565,15)
+steamCycle = cycle.SteamCycle(hp,ip,lp,m1,m2,m3,ma,565,15)
 steamCycle.SaveResults('steam_data','work_data')
 
 
