@@ -53,7 +53,7 @@ class SteamCycle:
         mass_flow_3 = m3
         mass_flow_amine = ma
 
-        massflows = {
+        self.massflows = {
             'mass flow 1' : mass_flow_1,
             'mass flow 2' : mass_flow_2,
             'mass flow 3' : mass_flow_3,
@@ -198,9 +198,16 @@ class SteamCycle:
         'HP Turbine work' : HPT_mass_flow * (self.h[14] - self.h[15]),
         'IP Turbine work' : IPT_mass_flow * (self.h[10] - self.h[5]),
         'LP Turbine work' : LPT_mass_flow * (self.h[5] - self.h[6]),
-        'LP Heat Input' : self.superheater_1_mass_flow * (self.h[5] - self.h[4]) + self.evaporator_1_mass_flow * (self.h[4] - self.h[3]) + self.economiser_1_mass_flow * (self.h[3] - self.h[2]),
-        'IP Heat Input' : self.superheater_2_mass_flow * (self.h[10] - self.h[9]) + self.evaporator_2_mass_flow * (self.h[9] - self.h[8]) + self.economiser_2_mass_flow * (self.h[8] - self.h[7]),
-        'HP Heat Input' : self.superheater_3_mass_flow * (self.h[14] - self.h[13]) + self.evaporator_3_mass_flow * (self.h[13] - self.h[12]) + self.economiser_3_mass_flow * (self.h[12] - self.h[11])
+        'LP Superheater Heat Input' : self.superheater_1_mass_flow * (self.h[5] - self.h[4]),
+        'LP Evaporator Heat Input' : self.evaporator_1_mass_flow * (self.h[4] - self.h[3]),
+        'LP Economiser Heat Input' :  self.economiser_1_mass_flow * (self.h[3] - self.h[2]),
+        'IP Superheater Heat Input' : self.superheater_2_mass_flow * (self.h[10] - self.h[15]),
+        'IP Superheater 2 Heat Input' : self.evaporator_2_mass_flow * (self.h[15] - self.h[9]),
+        'IP Evaporator Heat Input' : self.evaporator_2_mass_flow * (self.h[9] - self.h[8]),
+        'IP Economiser Heat Input' :  self.economiser_2_mass_flow * (self.h[8] - self.h[7]),
+        'HP Superheater Heat Input' : self.superheater_3_mass_flow * (self.h[14] - self.h[13]),
+        'HP Evaporator Heat Input' : self.evaporator_3_mass_flow * (self.h[13] - self.h[12]),
+        'HP Economiser Heat Input' :  self.economiser_3_mass_flow * (self.h[12] - self.h[11])
         }
 
 
@@ -209,13 +216,14 @@ class SteamCycle:
             print("\n\t"+work+" = "+str(value))
 
         #Finding Total Heat into Cycle from HRSG
-        self.q_in = self.total_works['LP Heat Input'] + self.total_works['IP Heat Input'] + self.total_works['HP Heat Input']
+        self.q_in = self.total_works['LP Economiser Heat Input'] + self.total_works['LP Evaporator Heat Input']+ self.total_works['LP Superheater Heat Input'] + self.total_works['IP Economiser Heat Input'] + self.total_works['IP Evaporator Heat Input'] + self.total_works['IP Superheater Heat Input'] + self.total_works['HP Economiser Heat Input'] + self.total_works['HP Evaporator Heat Input'] + self.total_works['HP Superheater Heat Input']
 
         #FInding Net Work
         self.w_net = self.total_works['HP Turbine work'] + self.total_works['IP Turbine work'] + self.total_works['LP Turbine work'] - self.total_works['HP Pump work'] - self.total_works['IP Pump work'] - self.total_works['LP Pump work']
-
+        self.total_works['Net Work'] = self.w_net
         #Finding Thermal Efficiency fo Steam Cycle
         self.efficiency = self.w_net / self.q_in
+        self.total_works['Efficiency'] = self.efficiency
 
         print("\nCycle Efficiency:")
         print("\n\tefficiency = "+str(self.efficiency*100)+"%")
