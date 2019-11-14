@@ -230,17 +230,33 @@ class SteamCycle:
         print("\n\tWith a Net Work of : "+str(np.round(self.w_net))+"kW")
         print("\n\tand a Total Heat Input of: "+str(np.round(self.q_in))+"kW\n")
 
-    def PlotResults(self):
+    def PlotResults(self, annotated=True, lines=True, linestyle="dashed"):
+        connectivity = [[1,2,3,4,5,6,1],  # lp
+                        [3,7,8,9,10,5],  # ip
+                        [3,11,12,13,14,15]]  # hp
         plt.plot(self.s[1:],np.subtract(self.T[1:],273.15),'r+',markersize=10)
         plt.xlabel("Specific Entropy [kJ/kgK]")
         plt.ylabel("Temperature [C]")
         #add labels to points
-        for i in range(1,len(self.s)):
-            plt.annotate(str(i),
-                            (self.s[i],self.T[i]-273.15),
-                            textcoords="offset points",
-                            xytext=(0,10),
-                            ha='center')
+        labels = []
+        if annotated:
+            labels.append("Thermodynamic States")
+            for i in range(1,len(self.s)):
+                plt.annotate(str(i),
+                                (self.s[i],self.T[i]-273.15),
+                                textcoords="offset points",
+                                xytext=(0,-15 if i ==7 or i == 9 or i==1 else 10),
+                                ha='center')
+        if lines:
+            labels.extend(["Low Pressure", "intermediate Pressure", "High Pressure"])
+            for pressure_level in connectivity:
+                s_ = []
+                T_ = []
+                for index in pressure_level:
+                    s_.append(self.s[index])
+                    T_.append(self.T[index] - 273.15)
+                plt.plot(s_,T_,linestyle=linestyle)
+        plt.legend(labels)
         plt.show()
 
     def SaveResults(self,conditions_file_name: str, energies_file_name: str):

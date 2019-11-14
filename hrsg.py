@@ -159,4 +159,4 @@ def PlotPinchgraph(array_of_exchangers, padding=5, title="pinch plot", differenc
 
 PlotPinchgraph(HRSG,title="Heat Consumption versus Temperature diagram for the HRSG", difference_threshold = 50)
 
-steamCycle.PlotResults()
+steamCycle.PlotResults(annotated = True, lines=True, linestyle="solid")
