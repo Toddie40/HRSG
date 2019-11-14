@@ -118,7 +118,7 @@ for name, exchanger in HRSG.items():
     print("\tSteam Outlet temperature: "+str(exchanger.t['cold out']))
     print("\tHeat Duty: "+str(exchanger.Q))
 
-def PlotPinchgraph(array_of_exchangers, padding=5, title="pinch plot", difference_threshold=50):
+def PlotPinchgraph(array_of_exchangers, axes, padding=5, title="pinch plot", difference_threshold=50):
     # create x axis
     array_of_exchangers = list(array_of_exchangers.items())
     no_of_exchangers = len(array_of_exchangers)
@@ -139,23 +139,22 @@ def PlotPinchgraph(array_of_exchangers, padding=5, title="pinch plot", differenc
         diff_1 = np.round(hot_temps[0] - cold_temps[0])
         diff_2 = np.round(hot_temps[1] - cold_temps[1])
         if diff_1 < difference_threshold:  # only plot difference on graph if less that 50 K
-            plt.text(x[i][0], cold_temps[0] + padding, str(diff_1))
+            axes.text(x[i][0], cold_temps[0] + padding, str(diff_1))
         if diff_2 < difference_threshold:
-            plt.text(x[i][1], cold_temps[1] + padding, str(diff_2))
-        plt.plot(x[i],cold_temps)
+            axes.text(x[i][1], cold_temps[1] + padding, str(diff_2))
+        axes.plot(x[i],cold_temps)
 
 
     # add flue gas temperature
     x = [0,steamCycle.q_in / 1000] # convert to MW
     T_fg = [array_of_exchangers[no_of_exchangers-1][1].t['hot out'], array_of_exchangers[0][1].t['hot in']]
 
-    plt.plot(x,T_fg,linestyle="dashed", color='r')
+    axes.plot(x,T_fg,linestyle="dashed", color='r')
     labels.append("Fluegas Temperature")
-    plt.legend(labels)
-    plt.xlabel("Heat Consumption [MW]")
-    plt.ylabel("Temperature [K]")
-    plt.title(title)
-    plt.show()
+    axes.legend(labels)
+    axes.set_xlabel("Heat Consumption [MW]")
+    axes.set_ylabel("Temperature [K]")
+    axes.set_title(title)
 
 
 overallEfficiency = (steamCycle.efficiency + gasTurbine.efficiency) - (steamCycle.efficiency * gasTurbine.efficiency)
@@ -165,7 +164,14 @@ print("\n\tSteam Cycle Efficieny: "+str(np.round(100*steamCycle.efficiency,1))+"
 print("\n\tGas Turbine Efficieny: "+str(np.round(100*gasTurbine.efficiency,1))+"%")
 print("\n\tTotal plant efficiency: " + str(np.round(100* overallEfficiency,1))+"%")
 
+#plotting graphs
 
-PlotPinchgraph(HRSG,title="Heat Consumption versus Temperature diagram for the HRSG", difference_threshold = 50)
-gasTurbine.PlotResults()
-steamCycle.PlotResults(annotated = True, lines=True, linestyle="solid")
+# create new figure and axes object
+cycle_figures, (gas_ax, steam_ax) = plt.subplots(2,1)
+hrsg_figure, hrsg_ax = plt.subplots(1,1)
+
+
+PlotPinchgraph(HRSG,hrsg_ax, title="Heat Consumption versus Temperature diagram for the HRSG", difference_threshold = 50)
+gasTurbine.PlotResults(gas_ax)
+steamCycle.PlotResults(steam_ax,annotated = True, lines=True, linestyle="solid")
+plt.show()

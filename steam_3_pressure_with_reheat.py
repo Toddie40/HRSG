@@ -230,34 +230,36 @@ class SteamCycle:
         print("\n\tWith a Net Work of : "+str(np.round(self.w_net))+"kW")
         print("\n\tand a Total Heat Input of: "+str(np.round(self.q_in))+"kW\n")
 
-    def PlotResults(self, annotated=True, lines=True, linestyle="dashed"):
+    def PlotResults(self, axes, annotated=True, lines=True, linestyle="dashed"):
         connectivity = [[1,2,3,4,5,6,1],  # lp
                         [3,7,8,9,10,5],  # ip
                         [3,11,12,13,14,15]]  # hp
-        plt.plot(self.s[1:],np.subtract(self.T[1:],273.15),'r+',markersize=10)
-        plt.xlabel("Specific Entropy [kJ/kgK]")
-        plt.ylabel("Temperature [C]")
+        axes.plot(self.s[1:],np.subtract(self.T[1:],273.15),'r+',markersize=10)
+        axes.set_xlabel("Specific Entropy [kJ/kgK]")
+        axes.set_ylabel("Temperature [C]")
+        axes.set_title("T-S Diagram for Steam Cycle")
         #add labels to points
         labels = []
         if annotated:
             labels.append("Thermodynamic States")
             for i in range(1,len(self.s)):
-                plt.annotate(str(i),
+                axes.annotate(str(i),
                                 (self.s[i],self.T[i]-273.15),
                                 textcoords="offset points",
                                 xytext=(0,-15 if i ==7 or i == 9 or i==1 else 10),
                                 ha='center')
         if lines:
-            labels.extend(["Low Pressure", "intermediate Pressure", "High Pressure"])
+            labels.extend(["Low Pressure", "Intermediate Pressure", "High Pressure"])
             for pressure_level in connectivity:
                 s_ = []
                 T_ = []
                 for index in pressure_level:
                     s_.append(self.s[index])
                     T_.append(self.T[index] - 273.15)
-                plt.plot(s_,T_,linestyle=linestyle)
-        plt.legend(labels)
-        plt.show()
+                axes.plot(s_,T_,linestyle=linestyle)
+        axes.grid()
+        axes.legend(labels)
+
 
     def SaveResults(self,conditions_file_name: str, energies_file_name: str):
 

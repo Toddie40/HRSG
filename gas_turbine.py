@@ -35,7 +35,7 @@ class GasTurbine:
         self.s = [0] * 5
         self.s[0] = 'Specific Entropy'
         for index in range(1, len(self.T)):
-            self.s[index] = PropsSI('S','P', BarToPa(self.P[index]),'T',ToKelvin(self.T[index]),'Air')
+            self.s[index] = PropsSI('S','P', BarToPa(self.P[index]),'T',ToKelvin(self.T[index]),'Air') /1000  # convert to kJ/kgK
 
 
         self.work = {}
@@ -47,14 +47,13 @@ class GasTurbine:
         self.efficiency = self.work['Net Work'] / self.work['heat in']
 
 
-        print(self.s)
-        print(self.T)
-        print(self.P)
-        print(self.Ts)
 
-    def PlotResults(self):
-        plt.plot(self.s[1:],self.T[1:])
-        plt.show()
+    def PlotResults(self, axes):
+        axes.plot(self.s[1:],self.T[1:])
+        axes.set_xlabel("Specific Entropy [kJ/kgK]")
+        axes.set_ylabel("Temperature [C]")
+        axes.set_title("T-S Diagram for Gas Turbine")
+        axes.grid()
 
 
 def BarToPa(p):
