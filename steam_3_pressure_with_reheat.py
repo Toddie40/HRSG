@@ -83,7 +83,7 @@ class SteamCycle:
         self.evaporator_2_mass_flow = mass_flow_2
         self.evaporator_3_mass_flow = mass_flow_3
 
-        self.superheater_1_mass_flow = mass_flow_1
+        self.superheater_1_mass_flow = mass_flow_1 - mass_flow_amine
         self.superheater_2_mass_flow = mass_flow_2 + mass_flow_3
         self.superheater_3_mass_flow = mass_flow_3
 

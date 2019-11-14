@@ -3,6 +3,7 @@ import steam_3_pressure_with_reheat as cycle
 import numpy as np
 import collections
 from matplotlib import pyplot as plt
+import gas_turbine as gt
 
 class HeatExchanger:
     def __init__(self, t_h_in, t_c_in, t_c_out, m_h_in, m_c_in, c_condition, operating_pressure, quality_in=0, quality_out=1):
@@ -48,10 +49,10 @@ print("---HRSG and Steam Cycle Analysis---\n")
 #define a new steam cycle with the following conditions
 
 # mass flows kg/s
-m1 = 20
-m2 = 30
-m3 = 50
-ma = 5  # mass of steam required for CCS
+m1 = 48
+m2 = 5
+m3 = 55
+ma = 39.68  # mass of steam required for CCS
 
 # pressure levels bar
 hp = 165
@@ -61,7 +62,7 @@ lp = 4
 
 steamCycle = cycle.SteamCycle(hp,ip,lp,m1,m2,m3,ma,565,15)
 steamCycle.SaveResults('steam_data','work_data')
-
+gasTurbine = gt.GasTurbine(14.2, 50, 50000, 20.1, .9, .81)
 
 fluegas_temp_in = 599 +273.15#K
 fluegas_massflow = 724
@@ -157,6 +158,14 @@ def PlotPinchgraph(array_of_exchangers, padding=5, title="pinch plot", differenc
     plt.show()
 
 
-PlotPinchgraph(HRSG,title="Heat Consumption versus Temperature diagram for the HRSG", difference_threshold = 50)
+overallEfficiency = (steamCycle.efficiency + gasTurbine.efficiency) - (steamCycle.efficiency * gasTurbine.efficiency)
 
+print("---------------------------------------\nEfficiency:")
+print("\n\tSteam Cycle Efficieny: "+str(np.round(100*steamCycle.efficiency,1))+"%")
+print("\n\tGas Turbine Efficieny: "+str(np.round(100*gasTurbine.efficiency,1))+"%")
+print("\n\tTotal plant efficiency: " + str(np.round(100* overallEfficiency,1))+"%")
+
+
+PlotPinchgraph(HRSG,title="Heat Consumption versus Temperature diagram for the HRSG", difference_threshold = 50)
+gasTurbine.PlotResults()
 steamCycle.PlotResults(annotated = True, lines=True, linestyle="solid")
