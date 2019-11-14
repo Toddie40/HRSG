@@ -4,6 +4,7 @@ import numpy as np
 import collections
 from matplotlib import pyplot as plt
 import gas_turbine as gt
+import csv
 
 class HeatExchanger:
     def __init__(self, t_h_in, t_c_in, t_c_out, m_h_in, m_c_in, c_condition, operating_pressure, quality_in=0, quality_out=1):
@@ -108,16 +109,25 @@ HRSG['LP_evaporator'] = HeatExchanger(HRSG['IP_economiser'].t['hot out'], steamC
 HRSG['LP_economiser'] = HeatExchanger(HRSG['LP_evaporator'].t['hot out'], steamCycle.T[2], steamCycle.T[3], fluegas_massflow, steamCycle.economiser_1_mass_flow, 'l', steamCycle.P[2] )
 
 
+def SaveResults(hrsg_filename):
+    # generate HRSG table
+    # HE, FGin, FGout, STEAMin, STEAM,out, Heat Duty
+    hrsgsOutputTableRows = [0]*(len(HRSG)+1)
+    hrsgsOutputTableRows[0] = ["Heat Exchanger Surface","Flue Gas In","Flue Gas Out","Water/Steam In","Water/Steam Out", "Heat Duty"]
 
+    for index, entry in enumerate(HRSG):
+        name = entry
+        exchanger = HRSG[entry]
+        hrsgsOutputTableRows[index+1] = [name, exchanger.t['hot in'], exchanger.t['hot out'], exchanger.t['cold in'], exchanger.t['cold out'], exchanger.Q]
+    try:
+        with open(hrsg_filename+".csv", 'w') as csvfile:
+            writer = csv.writer(csvfile)
 
-for name, exchanger in HRSG.items():
-    print("\n"+name)
-    print("\tFluegas Inlet temperature: "+str(exchanger.t['hot in']))
-    print("\tFluegas Outlet temperature: "+str(exchanger.t['hot out']))
-    print("\tSteam Inlet temperature: "+str(exchanger.t['cold in']))
-    print("\tSteam Outlet temperature: "+str(exchanger.t['cold out']))
-    print("\tHeat Duty: "+str(exchanger.Q))
-
+            writer.writerows(hrsgsOutputTableRows)
+            return True
+    except IOError:
+        print("I/O error")
+        return False
 def PlotPinchgraph(array_of_exchangers, axes, padding=5, title="pinch plot", difference_threshold=50):
     # create x axis
     array_of_exchangers = list(array_of_exchangers.items())
@@ -170,7 +180,7 @@ print("\n\tTotal plant efficiency: " + str(np.round(100* overallEfficiency,1))+"
 cycle_figures, (gas_ax, steam_ax) = plt.subplots(2,1)
 hrsg_figure, hrsg_ax = plt.subplots(1,1)
 
-
+SaveResults("hrsg")
 PlotPinchgraph(HRSG,hrsg_ax, title="Heat Consumption versus Temperature diagram for the HRSG", difference_threshold = 50)
 gasTurbine.PlotResults(gas_ax)
 steamCycle.PlotResults(steam_ax,annotated = True, lines=True, linestyle="solid")
