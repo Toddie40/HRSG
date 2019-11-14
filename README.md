@@ -5,6 +5,7 @@
 - numpy
 - matplotlib
 - iapws
+- CoolProp
 
 Run program from within HRSG file. It's hacked together atm, but will eventually have at least _some_ degree of intuition
 Program generates csv files for the steam cycle thermodynamic conditions at each point as well as each component's required work or heat.
