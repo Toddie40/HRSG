@@ -113,7 +113,7 @@ def SaveResults(hrsg_filename):
     # generate HRSG table
     # HE, FGin, FGout, STEAMin, STEAM,out, Heat Duty
     hrsgsOutputTableRows = [0]*(len(HRSG)+1)
-    hrsgsOutputTableRows[0] = ["Heat Exchanger Surface","Flue Gas In","Flue Gas Out","Water/Steam In","Water/Steam Out", "Heat Duty"]
+    hrsgsOutputTableRows[0] = ["Heat Exchanger Surface","Flue Gas In [K]","Flue Gas Out [K]","Water/Steam In [K]","Water/Steam Out [K]", "Heat Duty [kW]"]
 
     for index, entry in enumerate(HRSG):
         name = entry
