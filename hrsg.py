@@ -51,7 +51,7 @@ print("---HRSG and Steam Cycle Analysis---\n")
 
 # mass flows kg/s
 m1 = 48
-m2 = 5
+m2 = 6
 m3 = 55
 ma = 39.68  # mass of steam required for CCS
 
