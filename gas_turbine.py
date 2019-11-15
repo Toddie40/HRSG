@@ -1,4 +1,5 @@
 from CoolProp.CoolProp import PropsSI
+import csv
 
 T_atm = 8  # Celcius
 P_atm = 1  # bar
@@ -32,7 +33,7 @@ class GasTurbine:
         self.P[4] = self.P[1]
 
         self.s = [0] * 5
-        self.s[0] = 'Specific Entropy'
+        self.s[0] = 'Specific Entropy [kJ/kgK]'
         for index in range(1, len(self.T)):
             self.s[index] = PropsSI('S','P', BarToPa(self.P[index]),'T',ToKelvin(self.T[index]),'Air') /1000  # convert to kJ/kgK
 
@@ -62,6 +63,18 @@ class GasTurbine:
         axes.set_title("T-S Diagram for Gas Turbine")
         axes.grid()
 
+    def SaveResults(self, csv_file_path):
+        outputArray = [None] * (len(self.T))
+        for index in range(0,len(self.T)):
+            outputArray[index] = [self.T[index], self.P[index], self.s[index]]
+        try:
+            with open(csv_file_path+".csv", 'w') as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerows(outputArray)
+                return True
+        except IOError:
+            print("I/O error")
+            return False
 
 def BarToPa(p):
         return p * (10 ** 5)

@@ -190,6 +190,7 @@ cycle_figures, (gas_ax, steam_ax) = plt.subplots(2, 1)
 hrsg_figure, hrsg_ax = plt.subplots(1, 1)
 
 SaveResults("hrsg")
+gasTurbine.SaveResults("gas_turbine")
 PlotPinchgraph(HRSG, hrsg_ax, title="Heat Consumption versus Temperature diagram for the HRSG", difference_threshold=50)
 gasTurbine.PlotResults(gas_ax)
 steamCycle.PlotResults(steam_ax, annotated=True, lines=True, linestyle="solid")
