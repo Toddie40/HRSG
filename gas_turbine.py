@@ -1,5 +1,4 @@
 from CoolProp.CoolProp import PropsSI
-from matplotlib import pyplot as plt
 
 T_atm = 8  # Celcius
 P_atm = 1  # bar

@@ -1,26 +1,31 @@
 import iapws.iapws97 as steam
 import numpy as np
-from matplotlib import pyplot as plt
 import csv
 
-###############################################################Utility Functions
+# Utility Functions
+
 
 def MPToBar(pressure):
     return pressure*10
 
+
 def ToKelvin(temp):
     return temp+273.15
+
+
 def ToCelcius(temp):
     return temp - 273.15
+
 
 def BarToMP(pressure):
     return pressure/10
 
-def PFromTS(t,s,p0,precision,maxNoOfIters):
+
+def PFromTS(t, s, p0, precision, maxNoOfIters):
     print("finding pressure at\nEntropy: "+str(s)+"\nTemperature: "+str(t))
     p = p0
     i = 0
-    currentConditions = steam._Region2(t,p)
+    currentConditions = steam._Region2(t, p)
     print("Entropy at starting position: "+str(currentConditions['s']))
     while currentConditions['s'] < s:
         print("iteration: "+str(i))
@@ -29,20 +34,22 @@ def PFromTS(t,s,p0,precision,maxNoOfIters):
         if i >= maxNoOfIters:
             print("Ran out of iterations! Got to P="+str(p))
             return p
-        p-=precision
-        currentConditions = steam._Region2(t,p)
-        i+=1
+        p -= precision
+        currentConditions = steam._Region2(t, p)
+        i += 1
     print("Conditions at T="+str(t)+" and s="+str(s))
     print("Found pressure P="+str(p))
     return p
+
 
 k = 273.15
 
 ###############################################################################
 
+
 class SteamCycle:
 
-    def __init__(self,hp,ip,lp, m1, m2, m3, ma, steam_high_temp, water_low_temp):
+    def __init__(self, hp, ip, lp, m1, m2, m3, ma, steam_high_temp, water_low_temp):
         # Input Parameters
         self.HP = hp  # Bar
         self.IP = ip   # Bar
@@ -54,12 +61,11 @@ class SteamCycle:
         mass_flow_amine = ma
 
         self.massflows = {
-            'mass flow 1' : mass_flow_1,
-            'mass flow 2' : mass_flow_2,
-            'mass flow 3' : mass_flow_3,
-            'mass flow to amine' : mass_flow_amine
+            'mass flow 1': mass_flow_1,
+            'mass flow 2': mass_flow_2,
+            'mass flow 3': mass_flow_3,
+            'mass flow to amine': mass_flow_amine
         }
-
 
         # total mass flow
         total_mass_flow = mass_flow_1 + mass_flow_2 + mass_flow_3
@@ -74,7 +80,7 @@ class SteamCycle:
         IPP_mass_flow = mass_flow_2
         LPP_mass_flow = IPP_mass_flow + HPP_mass_flow + mass_flow_1
 
-        #HRSG Mass Flows
+        # HRSG Mass Flows
         self.economiser_1_mass_flow = total_mass_flow
         self.economiser_2_mass_flow = mass_flow_2
         self.economiser_3_mass_flow = mass_flow_3
@@ -87,15 +93,11 @@ class SteamCycle:
         self.superheater_2_mass_flow = mass_flow_2 + mass_flow_3
         self.superheater_3_mass_flow = mass_flow_3
 
-
         self.SteamHighTemp = steam_high_temp  # Celcius
-        ReheatTemp = 565
+
         WaterLowTemp = water_low_temp  # Celcius
 
-
-        precision = 0.01  # for iterative calculations
         quality = 0.9  # at turbine outlet
-
 
         self.T = [0]*16
 
@@ -126,7 +128,6 @@ class SteamCycle:
 
         # Temperatures in kelvin
 
-
         self.T[3] = steam._TSat_P(self.P[3])
         self.T[4] = self.T[3]
 
@@ -135,12 +136,9 @@ class SteamCycle:
         self.T[8] = steam._TSat_P(self.P[8])
         self.T[9] = self.T[8]
 
-
         self.T[12] = steam._TSat_P(self.P[12])
         self.T[13] = self.T[12]
         self.T[14] = ToKelvin(self.SteamHighTemp)
-
-
 
         # Begin going around cycle working out available values
         self.SpecificValues = [0] * 16
@@ -159,8 +157,8 @@ class SteamCycle:
 
         self.T[7] = steam._Backward1_T_Ps(self.P[7], self.SpecificValues[3]['s'])
         self.SpecificValues[7] = steam._Region1(self.T[7], self.P[7])
-        self.SpecificValues[8] = steam._Region4(self.P[8], 0 )
-        self.SpecificValues[9] = steam._Region4(self.P[8], 1 )
+        self.SpecificValues[8] = steam._Region4(self.P[8], 0)
+        self.SpecificValues[9] = steam._Region4(self.P[8], 1)
         self.T[10] = steam._Backward2_T_Ps(self.P[10], self.SpecificValues[5]['s'])
         self.SpecificValues[10] = steam._Region2(self.T[10], self.P[10])
         self.T[11] = steam._Backward1_T_Ps(self.P[11], self.SpecificValues[3]['s'])
@@ -171,7 +169,6 @@ class SteamCycle:
         self.T[15] = steam._Backward2_T_Ps(self.P[15], self.SpecificValues[14]['s'])
         self.SpecificValues[15] = steam._Region2(self.T[15], self.P[15])
 
-
         self.s = [0] * 16
         self.h = [0] * 16
 
@@ -181,42 +178,41 @@ class SteamCycle:
             self.s[i] = self.SpecificValues[i]['s']
             self.h[i] = self.SpecificValues[i]['h']
 
-
         #Printing T-P conditions at each point
         print("-------------------------------------------------------")
         print("\nCycle Conditions:")
-        for i in range(1,16):
+        for i in range(1, 16):
             print("\n\tT"+str(+i)+" = "+str(ToCelcius(self.T[i]))+" C")
             print("\tP"+str(+i)+" = "+str(MPToBar(self.P[i]))+" bar")
 
         #Finding specific work of turbines and pump
         self.total_works = {
-        'Work Type' : 'Work [kW]',
-        'LP Pump work' : LPP_mass_flow * (self.h[2] - self.h[1]),
-        'IP Pump work' : IPP_mass_flow * (self.h[7] - self.h[3]),
-        'HP Pump work' : HPP_mass_flow * (self.h[11] - self.h[3]),
-        'HP Turbine work' : HPT_mass_flow * (self.h[14] - self.h[15]),
-        'IP Turbine work' : IPT_mass_flow * (self.h[10] - self.h[5]),
-        'LP Turbine work' : LPT_mass_flow * (self.h[5] - self.h[6]),
-        'LP Superheater Heat Input' : self.superheater_1_mass_flow * (self.h[5] - self.h[4]),
-        'LP Evaporator Heat Input' : self.evaporator_1_mass_flow * (self.h[4] - self.h[3]),
-        'LP Economiser Heat Input' :  self.economiser_1_mass_flow * (self.h[3] - self.h[2]),
-        'IP Superheater Heat Input' : self.superheater_2_mass_flow * (self.h[10] - self.h[15]),
-        'IP Superheater 2 Heat Input' : self.evaporator_2_mass_flow * (self.h[15] - self.h[9]),
-        'IP Evaporator Heat Input' : self.evaporator_2_mass_flow * (self.h[9] - self.h[8]),
-        'IP Economiser Heat Input' :  self.economiser_2_mass_flow * (self.h[8] - self.h[7]),
-        'HP Superheater Heat Input' : self.superheater_3_mass_flow * (self.h[14] - self.h[13]),
-        'HP Evaporator Heat Input' : self.evaporator_3_mass_flow * (self.h[13] - self.h[12]),
-        'HP Economiser Heat Input' :  self.economiser_3_mass_flow * (self.h[12] - self.h[11])
+            'Work Type': 'Work [kW]',
+            'LP Pump work': LPP_mass_flow * (self.h[2] - self.h[1]),
+            'IP Pump work': IPP_mass_flow * (self.h[7] - self.h[3]),
+            'HP Pump work': HPP_mass_flow * (self.h[11] - self.h[3]),
+            'HP Turbine work': HPT_mass_flow * (self.h[14] - self.h[15]),
+            'IP Turbine work': IPT_mass_flow * (self.h[10] - self.h[5]),
+            'LP Turbine work': LPT_mass_flow * (self.h[5] - self.h[6]),
+            'LP Superheater Heat Input': self.superheater_1_mass_flow * (self.h[5] - self.h[4]),
+            'LP Evaporator Heat Input': self.evaporator_1_mass_flow * (self.h[4] - self.h[3]),
+            'LP Economiser Heat Input':  self.economiser_1_mass_flow * (self.h[3] - self.h[2]),
+            'IP Superheater Heat Input': self.superheater_2_mass_flow * (self.h[10] - self.h[15]),
+            'IP Superheater 2 Heat Input': self.evaporator_2_mass_flow * (self.h[15] - self.h[9]),
+            'IP Evaporator Heat Input': self.evaporator_2_mass_flow * (self.h[9] - self.h[8]),
+            'IP Economiser Heat Input':  self.economiser_2_mass_flow * (self.h[8] - self.h[7]),
+            'HP Superheater Heat Input': self.superheater_3_mass_flow * (self.h[14] - self.h[13]),
+            'HP Evaporator Heat Input': self.evaporator_3_mass_flow * (self.h[13] - self.h[12]),
+            'HP Economiser Heat Input':  self.economiser_3_mass_flow * (self.h[12] - self.h[11])
         }
-
 
         print("\nCycle Specific Works:")
         for work, value in self.total_works.items():
             print("\n\t"+work+" = "+str(value))
 
         #Finding Total Heat into Cycle from HRSG
-        self.q_in = self.total_works['LP Economiser Heat Input'] + self.total_works['LP Evaporator Heat Input']+ self.total_works['LP Superheater Heat Input'] + self.total_works['IP Economiser Heat Input'] + self.total_works['IP Evaporator Heat Input'] + self.total_works['IP Superheater Heat Input'] + self.total_works['HP Economiser Heat Input'] + self.total_works['HP Evaporator Heat Input'] + self.total_works['HP Superheater Heat Input']
+        self.q_in = self.total_works['LP Economiser Heat Input'] + self.total_works['LP Evaporator Heat Input'] + self.total_works['LP Superheater Heat Input'] + self.total_works['IP Economiser Heat Input'] + \
+            self.total_works['IP Evaporator Heat Input'] + self.total_works['IP Superheater Heat Input'] + self.total_works['HP Economiser Heat Input'] + self.total_works['HP Evaporator Heat Input'] + self.total_works['HP Superheater Heat Input']
 
         #FInding Net Work
         self.w_net = self.total_works['HP Turbine work'] + self.total_works['IP Turbine work'] + self.total_works['LP Turbine work'] - self.total_works['HP Pump work'] - self.total_works['IP Pump work'] - self.total_works['LP Pump work']
@@ -231,10 +227,10 @@ class SteamCycle:
         print("\n\tand a Total Heat Input of: "+str(np.round(self.q_in))+"kW\n")
 
     def PlotResults(self, axes, annotated=True, lines=True, linestyle="dashed"):
-        connectivity = [[1,2,3,4,5,6,1],  # lp
-                        [3,7,8,9,10,5],  # ip
-                        [3,11,12,13,14,15]]  # hp
-        axes.plot(self.s[1:],np.subtract(self.T[1:],273.15),'r+',markersize=10)
+        connectivity = [[1, 2, 3, 4, 5, 6, 1],  # lp
+                        [3, 7, 8, 9, 10, 5],  # ip
+                        [3, 11, 12, 13, 14, 15]]  # hp
+        axes.plot(self.s[1:], np.subtract(self.T[1:], 273.15), 'r+', markersize=10)
         axes.set_xlabel("Specific Entropy [kJ/kgK]")
         axes.set_ylabel("Temperature [C]")
         axes.set_title("T-S Diagram for Steam Cycle")
@@ -242,12 +238,12 @@ class SteamCycle:
         labels = []
         if annotated:
             labels.append("Thermodynamic States")
-            for i in range(1,len(self.s)):
+            for i in range(1, len(self.s)):
                 axes.annotate(str(i),
-                                (self.s[i],self.T[i]-273.15),
-                                textcoords="offset points",
-                                xytext=(0 if not i==3 else -10,-15 if i ==7 or i == 9 or i==1 else 10),
-                                ha='center')
+                              (self.s[i], self.T[i]-273.15),
+                              textcoords="offset points",
+                              xytext=(0 if not i == 3 else -10, -15 if i == 7 or i == 9 or i == 1 else 10),
+                              ha='center')
         if lines:
             labels.extend(["Low Pressure", "Intermediate Pressure", "High Pressure"])
             for pressure_level in connectivity:
@@ -256,18 +252,17 @@ class SteamCycle:
                 for index in pressure_level:
                     s_.append(self.s[index])
                     T_.append(self.T[index] - 273.15)
-                axes.plot(s_,T_,linestyle=linestyle)
+                axes.plot(s_, T_, linestyle=linestyle)
         axes.grid()
         axes.legend(labels)
 
-
-    def SaveResults(self,conditions_file_name: str, energies_file_name: str):
+    def SaveResults(self, conditions_file_name: str, energies_file_name: str):
 
         # save temperatuyres pressures enthalpies and entropies to csv
         conditions_array = np.vstack([self.T, self.P, self.h, self.s])
         conditions_array = np.transpose(conditions_array)
         np.savetxt(conditions_file_name+".csv", conditions_array, delimiter=',')
-        print(["Temp K","Pressure [MPa]", "Enthalpy [kJ/kg]", "Entropy [kJ/kgK]"])
+        print(["Temp K", "Pressure [MPa]", "Enthalpy [kJ/kg]", "Entropy [kJ/kgK]"])
         print(conditions_array)
 
         # save energies dictionary to csv

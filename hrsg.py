@@ -53,7 +53,7 @@ print("---HRSG and Steam Cycle Analysis---\n")
 # mass flows kg/s
 m1 = 48
 m2 = 6
-m3 = 55
+m3 = 54
 ma = 39.68  # mass of steam required for CCS
 
 # pressure levels bar
@@ -62,9 +62,13 @@ ip = 8
 lp = 4
 
 
+gt_isentropic_turbine_efficiency = .85
+gt_isentropic_compressor_efficiency = .85
+gt_pressure_ratio = 20.1
+
 steamCycle = cycle.SteamCycle(hp, ip, lp, m1, m2, m3, ma, 565, 15)
 steamCycle.SaveResults('steam_data', 'work_data')
-gasTurbine = gt.GasTurbine(14.2, 50, 50000, 20.1, .85, .85)
+gasTurbine = gt.GasTurbine(14.2, 50, 50000, gt_pressure_ratio, gt_isentropic_turbine_efficiency, gt_isentropic_compressor_efficiency)
 
 
 fluegas_temp_in = gasTurbine.T[4] + 273.15  # K
