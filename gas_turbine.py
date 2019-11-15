@@ -71,10 +71,17 @@ class GasTurbine:
             with open(csv_file_path+".csv", 'w') as csvfile:
                 writer = csv.writer(csvfile)
                 writer.writerows(outputArray)
-                return True
+
+            with open(csv_file_path+"_works.csv",'w') as csvfile:
+                writer = csv.writer(csvfile)
+                for key in self.work.keys():
+                    writer.writerow([key, self.work[key]])
+                writer.writerow(["Efficiency",self.efficiency])
+            return True
         except IOError:
             print("I/O error")
             return False
+
 
 def BarToPa(p):
         return p * (10 ** 5)
