@@ -74,7 +74,7 @@ fluegas_cp = 1.004
 
 fluegas_temp_out = fluegas_temp_in - (steamCycle.q_in / (fluegas_massflow * fluegas_cp))
 
-print("HRSGS fluegas outlet temperature: "+str(fluegas_temp_out))
+print("HRSGS fluegas outlet temperature: "+str(fluegas_temp_out-273.15)+" C")
 
 # Start constructing HRSG by sticking heat exchangers together
 
