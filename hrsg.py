@@ -138,7 +138,7 @@ def SaveResults(hrsg_filename):
         return False
 
 
-def PlotPinchgraph(array_of_exchangers, axes, padding=5, title="pinch plot", difference_threshold=50):
+def PlotPinchgraph(array_of_exchangers, axes, padding=5, title="pinch plot", difference_threshold=50,unit="c"):
     # create x axis
     array_of_exchangers = list(array_of_exchangers.items())
     no_of_exchangers = len(array_of_exchangers)
@@ -154,8 +154,13 @@ def PlotPinchgraph(array_of_exchangers, axes, padding=5, title="pinch plot", dif
         if i > 0:
             x[i][0] = x[i-1][1]
         x[i][1] = (data.Q) / 1000 + x[i][0]  # Convert to MW
+
         cold_temps = [data.t['cold in'], data.t['cold out']]
         hot_temps = [data.t['hot out'], data.t['hot in']]
+        if unit == "c":  # convert to celcius if unit is specififed as celcius
+            hot_temps = np.subtract(hot_temps, 273.15)
+            cold_temps = np.subtract(cold_temps, 273.15)
+
         diff_1 = np.round(hot_temps[0] - cold_temps[0])
         diff_2 = np.round(hot_temps[1] - cold_temps[1])
         if diff_1 < difference_threshold:  # only plot difference on graph if less that 50 K
@@ -167,12 +172,14 @@ def PlotPinchgraph(array_of_exchangers, axes, padding=5, title="pinch plot", dif
     # add flue gas temperature
     x = [0, steamCycle.q_in / 1000]  # convert to MW
     T_fg = [array_of_exchangers[no_of_exchangers-1][1].t['hot out'], array_of_exchangers[0][1].t['hot in']]
+    if unit == "c":
+        T_fg = np.subtract(T_fg, 273.15)  # Another conversion to Celcius
 
     axes.plot(x, T_fg, linestyle="dashed", color='r')
     labels.append("Fluegas Temperature")
     axes.legend(labels)
     axes.set_xlabel("Heat Consumption [MW]")
-    axes.set_ylabel("Temperature [K]")
+    axes.set_ylabel("Temperature [C]" if unit == "c" else "Temperature [K]")
     axes.set_title(title)
 
 
@@ -186,7 +193,8 @@ print("\n\tTotal plant efficiency: " + str(np.round(100 * overallEfficiency, 1))
 # plotting graphs
 
 # create new figure and axes object
-cycle_figures, (gas_ax, steam_ax) = plt.subplots(2, 1)
+gas_ts, gas_ax = plt.subplots(1, 1)
+steam_ts, steam_ax = plt.subplots(1, 1)
 hrsg_figure, hrsg_ax = plt.subplots(1, 1)
 
 SaveResults("hrsg")
