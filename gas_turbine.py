@@ -9,7 +9,7 @@ cp = 1.004
 
 class GasTurbine:
 
-    def __init__(self, fuel_in, AF, LHV, P_r, n_t, n_c):
+    def __init__(self, fuel_in, AF, LHV, P_r, n_t=1, n_c=1):
         self.m_air = fuel_in * AF
         self.m_f = fuel_in
         self.m_t = fuel_in * (1 + AF)
@@ -48,8 +48,16 @@ class GasTurbine:
 
 
 
-    def PlotResults(self, axes):
+    def PlotResults(self, axes,annotated=True):
         axes.plot(self.s[1:],self.T[1:])
+        if annotated:
+
+            for i in range(1,len(self.s)):
+                axes.annotate(str(i),
+                                (self.s[i],self.T[i]),
+                                textcoords="offset points",
+                                xytext=(0,10),
+                                ha='center')
         axes.set_xlabel("Specific Entropy [kJ/kgK]")
         axes.set_ylabel("Temperature [C]")
         axes.set_title("T-S Diagram for Gas Turbine")

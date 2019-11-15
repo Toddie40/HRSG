@@ -246,7 +246,7 @@ class SteamCycle:
                 axes.annotate(str(i),
                                 (self.s[i],self.T[i]-273.15),
                                 textcoords="offset points",
-                                xytext=(0,-15 if i ==7 or i == 9 or i==1 else 10),
+                                xytext=(0 if not i==3 else -10,-15 if i ==7 or i == 9 or i==1 else 10),
                                 ha='center')
         if lines:
             labels.extend(["Low Pressure", "Intermediate Pressure", "High Pressure"])

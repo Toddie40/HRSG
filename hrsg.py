@@ -64,11 +64,14 @@ lp = 4
 
 steamCycle = cycle.SteamCycle(hp, ip, lp, m1, m2, m3, ma, 565, 15)
 steamCycle.SaveResults('steam_data', 'work_data')
-gasTurbine = gt.GasTurbine(14.2, 50, 50000, 20.1, .9, .81)
+gasTurbine = gt.GasTurbine(14.2, 50, 50000, 20.1, .85, .85)
 
-fluegas_temp_in = 599 + 273.15  # K
+
+fluegas_temp_in = gasTurbine.T[4] + 273.15  # K
 fluegas_massflow = 724
 fluegas_cp = 1.004
+
+print("Temperature of flue gas exiting gas turbine: "+ str(fluegas_temp_in-273.15) +" C")
 
 # sanity check results from cycle
 
