@@ -34,9 +34,13 @@ class GasTurbine:
 
         self.s = [0] * 5
         self.s[0] = 'Specific Entropy [kJ/kgK]'
+
+        self.h = [0] * 5
+        self.h[0] = 'Specific Enthalpy [kJ/kg]'
+
         for index in range(1, len(self.T)):
             self.s[index] = PropsSI('S','P', BarToPa(self.P[index]),'T',ToKelvin(self.T[index]),'Air') /1000  # convert to kJ/kgK
-
+            self.h[index] = PropsSI('H','P', BarToPa(self.P[index]),'T',ToKelvin(self.T[index]),'Air') /1000  # convert to kJ/kgK
 
         self.work = {}
         self.work['turbine'] = self.m_t * cp * (self.T[3]-self.T[4])
@@ -48,19 +52,23 @@ class GasTurbine:
 
 
 
-    def PlotResults(self, axes,annotated=True):
-        axes.plot(self.s[1:],self.T[1:])
+    def PlotResults(self, axes,annotated=True, type="ts"):
+        if type == 'ts':
+            axes.plot(self.s[1:],self.T[1:])
+        elif type == 'hs':
+            axes.plot(self.s[1:],self.h[1:])
+
         if annotated:
 
             for i in range(1,len(self.s)):
                 axes.annotate(str(i),
-                                (self.s[i],self.T[i]),
+                                (self.s[i],self.T[i] if type == 'ts' else self.h[i]),
                                 textcoords="offset points",
                                 xytext=(0,10),
                                 ha='center')
         axes.set_xlabel("Specific Entropy [kJ/kgK]")
-        axes.set_ylabel("Temperature [C]")
-        axes.set_title("T-S Diagram for Gas Turbine")
+        axes.set_ylabel("Temperature [C]" if type == 'ts' else "Specific Enthalpy [kJ/kg]")
+        axes.set_title("T-S Diagram for Gas Turbine" if type == 'ts' else "h-s Diagram for Gas Turbine")
         axes.grid()
 
     def SaveResults(self, csv_file_path):

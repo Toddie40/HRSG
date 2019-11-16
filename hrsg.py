@@ -121,12 +121,12 @@ def SaveResults(hrsg_filename):
     # generate HRSG table
     # HE, FGin, FGout, STEAMin, STEAM,out, Heat Duty
     hrsgsOutputTableRows = [0]*(len(HRSG)+1)
-    hrsgsOutputTableRows[0] = ["Heat Exchanger Surface", "Flue Gas In [K]", "Flue Gas Out [K]", "Water/Steam In [K]", "Water/Steam Out [K]", "Heat Duty [kW]"]
+    hrsgsOutputTableRows[0] = ["Heat Exchanger Surface", "Flue Gas In [K]", "Flue Gas Out [K]", "Water/Steam In [K]", "Water/Steam Out [K]", "Steam/Water Mass Flow [kg/s]", "Heat Duty [kW]"]
 
     for index, entry in enumerate(HRSG):
         name = entry
         exchanger = HRSG[entry]
-        hrsgsOutputTableRows[index+1] = [name, exchanger.t['hot in'], exchanger.t['hot out'], exchanger.t['cold in'], exchanger.t['cold out'], exchanger.Q]
+        hrsgsOutputTableRows[index+1] = [name, exchanger.t['hot in'], exchanger.t['hot out'], exchanger.t['cold in'], exchanger.t['cold out'], exchanger.m['cold'], exchanger.Q]
     try:
         with open(hrsg_filename+".csv", 'w') as csvfile:
             writer = csv.writer(csvfile)
@@ -200,6 +200,6 @@ hrsg_figure, hrsg_ax = plt.subplots(1, 1)
 SaveResults("hrsg")
 gasTurbine.SaveResults("gas_turbine")
 PlotPinchgraph(HRSG, hrsg_ax, title="Heat Consumption versus Temperature diagram for the HRSG", difference_threshold=50)
-gasTurbine.PlotResults(gas_ax)
+gasTurbine.PlotResults(gas_ax, type='hs')
 steamCycle.PlotResults(steam_ax, annotated=True, lines=True, linestyle="solid")
 plt.show()
