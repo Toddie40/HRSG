@@ -226,21 +226,30 @@ class SteamCycle:
         print("\n\tWith a Net Work of : "+str(np.round(self.w_net))+"kW")
         print("\n\tand a Total Heat Input of: "+str(np.round(self.q_in))+"kW\n")
 
-    def PlotResults(self, axes, annotated=True, lines=True, linestyle="dashed"):
+    def PlotResults(self, axes, type='ts', annotated=True, lines=True, linestyle="dashed"):
         connectivity = [[1, 2, 3, 4, 5, 6, 1],  # lp
                         [3, 7, 8, 9, 10, 5],  # ip
                         [3, 11, 12, 13, 14, 15]]  # hp
-        axes.plot(self.s[1:], np.subtract(self.T[1:], 273.15), 'r+', markersize=10)
-        axes.set_xlabel("Specific Entropy [kJ/kgK]")
-        axes.set_ylabel("Temperature [C]")
-        axes.set_title("T-S Diagram for Steam Cycle")
+        if type == 'ts':
+            axes.plot(self.s[1:], np.subtract(self.T[1:], 273.15), 'r+', markersize=10)
+            axes.set_xlabel("Specific Entropy [kJ/kgK]")
+            axes.set_ylabel("Temperature [C]")
+            axes.set_title("T-S Diagram for Steam Cycle")
+        elif type == 'hs':
+            axes.plot(self.s[1:], self.h[1:], 'r+', markersize=10)
+            axes.set_xlabel("Specific Entropy [kJ/kgK]")
+            axes.set_ylabel("Specific Enthalpy [kJ/kg]")
+            axes.set_title("h-S Diagram for Steam Cycle")
+        else:
+            print("Invalid graph type requested! Options are \'hs\' for enthalpy or \'ts\' for temperature")
+            return False
         #add labels to points
         labels = []
         if annotated:
             labels.append("Thermodynamic States")
             for i in range(1, len(self.s)):
                 axes.annotate(str(i),
-                              (self.s[i], self.T[i]-273.15),
+                              (self.s[i], self.T[i]-273.15 if type=='ts' else self.h[i]),
                               textcoords="offset points",
                               xytext=(0 if not i == 3 else -10, -15 if i == 7 or i == 9 or i == 1 else 10),
                               ha='center')
@@ -251,7 +260,7 @@ class SteamCycle:
                 T_ = []
                 for index in pressure_level:
                     s_.append(self.s[index])
-                    T_.append(self.T[index] - 273.15)
+                    T_.append(self.T[index] - 273.15 if type=='ts' else self.h[index])
                 axes.plot(s_, T_, linestyle=linestyle)
         axes.grid()
         axes.legend(labels)
