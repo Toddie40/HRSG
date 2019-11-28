@@ -99,10 +99,10 @@ HRSG['LP_superheater'] = HeatExchanger(HRSG['IP_superheater'].t['hot out'], stea
 HRSG['HP_evaporator'] = HeatExchanger(HRSG['LP_superheater'].t['hot out'], steamCycle.T[12], steamCycle.T[13], fluegas_massflow, steamCycle.evaporator_3_mass_flow, 'm', operating_pressure=steamCycle.P[12], quality_in=0, quality_out=1)
 
 # Second IP Superheater
-HRSG['IP_superheater_2'] = HeatExchanger(HRSG['HP_evaporator'].t['hot out'], steamCycle.T[9], steamCycle.T[15], fluegas_massflow, steamCycle.evaporator_2_mass_flow, 'g', steamCycle.P[9])
+#HRSG['IP_superheater_2'] = HeatExchanger(HRSG['HP_evaporator'].t['hot out'], steamCycle.T[9], steamCycle.T[15], fluegas_massflow, steamCycle.evaporator_2_mass_flow, 'g', steamCycle.P[9])
 
 # HP Economiser
-HRSG['HP_economiser'] = HeatExchanger(HRSG['IP_superheater_2'].t['hot out'], steamCycle.T[11], steamCycle.T[12], fluegas_massflow, steamCycle.economiser_3_mass_flow, 'l', steamCycle.P[11])
+HRSG['HP_economiser'] = HeatExchanger(HRSG['HP_evaporator'].t['hot out'], steamCycle.T[11], steamCycle.T[12], fluegas_massflow, steamCycle.economiser_3_mass_flow, 'l', steamCycle.P[11])
 
 # IP Evaporator
 HRSG['IP_evaporator'] = HeatExchanger(HRSG['HP_economiser'].t['hot out'], steamCycle.T[8], steamCycle.T[9], fluegas_massflow, steamCycle.evaporator_2_mass_flow, 'm', operating_pressure=steamCycle.P[8], quality_in=0, quality_out=1)
@@ -189,7 +189,7 @@ print("---------------------------------------\nEfficiency:")
 print("\n\tSteam Cycle Efficieny: "+str(np.round(100 * steamCycle.efficiency, 1))+"%")
 print("\n\tGas Turbine Efficieny: "+str(np.round(100 * gasTurbine.efficiency, 1))+"%")
 print("\n\tTotal plant efficiency: " + str(np.round(100 * overallEfficiency, 1))+"%")
-
+print("\n\tPlant Net Work: " + str(np.round(gasTurbine.work['Net Work'] + steamCycle.w_net)) + "kW")
 # plotting graphs
 
 # create new figure and axes object
@@ -201,5 +201,5 @@ SaveResults("hrsg")
 gasTurbine.SaveResults("gas_turbine")
 PlotPinchgraph(HRSG, hrsg_ax, title="Heat Consumption versus Temperature diagram for the HRSG", difference_threshold=50)
 gasTurbine.PlotResults(gas_ax, type='hs')
-steamCycle.PlotResults(steam_ax, type='hs', annotated=True, lines=True, linestyle="solid")
+steamCycle.PlotResults(steam_ax, type='ts', annotated=True, lines=True, linestyle="solid")
 plt.show()
