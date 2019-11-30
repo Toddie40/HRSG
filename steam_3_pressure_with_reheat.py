@@ -271,8 +271,7 @@ class SteamCycle:
         conditions_array = np.vstack([self.T, self.P, self.h, self.s])
         conditions_array = np.transpose(conditions_array)
         np.savetxt(conditions_file_name+".csv", conditions_array, delimiter=',')
-        print(["Temp K", "Pressure [MPa]", "Enthalpy [kJ/kg]", "Entropy [kJ/kgK]"])
-        print(conditions_array)
+        
 
         # save energies dictionary to csv
         try:
